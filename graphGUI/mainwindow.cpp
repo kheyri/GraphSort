@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "point.h"
 #include <QTime>
+#include <QVector>
 
 using namespace std;
 
@@ -18,13 +19,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->b_Open,SIGNAL(clicked(bool)),this,SLOT(openFile()));
     connect(ui->b_Sort,SIGNAL(clicked(bool)),this,SLOT(sortDot()));
+    connect(ui->b_Find,SIGNAL(clicked(bool)),this,SLOT(findName()));
 }
+
 bool check(string temp);    //проверка строки (точка или ребро)
 void write(vector<point> dots, string filename); //вывод вектора точек в файл
 vector<point> createdots (string filename); //заполнение вектора точек
 void sort_bubble(vector<point> &arr);
 void hoarasort(vector<point> &arr, int first, int last);
 void sort_merge(vector<point> &arr, int left, int right, int num);
+int search_binary(vector <point> &arr, int left, int right, string key);
 
 void MainWindow::sortDot()
 {
@@ -139,6 +143,24 @@ void MainWindow::openFile()
         const char* tmp=sys.c_str();
         system(tmp);
     }
+}
+
+void MainWindow::findName()
+{
+    string filename;
+    filename+=ui->le_path->text().toStdString();
+    vector <point> dots;
+
+    string temp=filename;
+
+    dots=createdots (filename);     //заполнение вектора точек point.cpp
+
+    sort_bubble(dots);
+
+
+    string s_name=ui->le_name->text().toStdString();
+    int result=search_binary(dots,0,dots.size()-1,s_name);
+    ui->l_name->setText(QString::number(result));
 }
 
 MainWindow::~MainWindow()
@@ -297,4 +319,21 @@ void sort_merge (vector<point> &arr, int left, int right, int num)
         arr[i+left].setName(arr_temp[i].getName());
 }
 
+int search_binary(vector <point> &arr, int left, int right, string key)
+{
+    int midd = 0;
+    while (1)
+    {
+        midd = (left + right) / 2;
 
+        if (key < arr[midd].getName())       // если искомое меньше значения в ячейке
+            right = midd - 1;      // смещаем правую границу поиска
+        else if (key > arr[midd].getName())  // если искомое больше значения в ячейке
+            left = midd + 1;	   // смещаем левую границу поиска
+        else                       // иначе (значения равны)
+            return midd;           // функция возвращает индекс ячейки
+
+        if (left > right)          // если границы сомкнулись
+            return -1;
+    }
+}
