@@ -21,6 +21,7 @@ private:
 public slots:
     void sortDot();
     void openFile();
+    void findName();
 
 };
 
